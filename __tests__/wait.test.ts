@@ -1,10 +1,11 @@
 /**
- * Unit tests for src/wait.js
+ * Unit tests for src/wait.ts
  */
-const { wait } = require('../src/wait')
-const { expect } = require('@jest/globals')
 
-describe('wait.js', () => {
+import { wait } from '../src/wait'
+import { expect } from '@jest/globals'
+
+describe('wait.ts', () => {
   it('throws an invalid number', async () => {
     const input = parseInt('foo', 10)
     expect(isNaN(input)).toBe(true)

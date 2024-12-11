@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  test-javascript:
-    name: JavaScript Tests
+  test-typescript:
+    name: TypeScript Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -57,7 +57,7 @@ jobs:
         id: test-action
         uses: ./
         with:
-          milliseconds: 1000
+          milliseconds: 2000
 
       - name: Print Output
         id: output
