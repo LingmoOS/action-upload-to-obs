@@ -67,12 +67,15 @@
     ]
   },
   "dependencies": {
-    "@actions/core": "^1.11.1"
+    "@actions/core": "^1.11.1",
+    "@actions/http-client": "^2.2.3",
+    "jsdom": "^25.0.1"
   },
   "devDependencies": {
     "@github/local-action": "^2.2.0",
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.14",
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^22.9.0",
     "@typescript-eslint/eslint-plugin": "^8.14.0",
     "@typescript-eslint/parser": "^8.14.0",
