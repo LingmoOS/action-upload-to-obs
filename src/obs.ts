@@ -109,11 +109,11 @@ class OBSClient {
     project_name: string,
     package_name: string,
     file_name: string,
-    close_commit: boolean = true
+    close_commit = true
   ): Promise<boolean> {
     try {
-      const rev: string = close_commit ? 'commit' : 'upload'
-      const commit_string: string = `Delete ${file_name}`
+      const rev = close_commit ? 'commit' : 'upload'
+      const commit_string = `Delete ${file_name}`
       const http: httpm.HttpClient = this.getHttpClient(this._authCode)
       const res: httpm.HttpClientResponse = await http.del(
         `https://api.opensuse.org/source/${project_name}/${package_name}/${file_name}?rev=${rev}&meta=0&keeplink=1&comment=${commit_string}`
@@ -162,11 +162,12 @@ class OBSClient {
       // Delete old files in the package
       for (const file of files_list) {
         if (
-          file.indexOf('dsc') !== -1 ||
-          file.indexOf('changes') !== -1 ||
-          file.indexOf('tar') !== -1
+          file.includes('.dsc') ||
+          file.includes('.changes') ||
+          file.includes('.tar')
         ) {
-          const is_last_file: boolean = (file === files_list[files_list.length - 1])
+          const is_last_file: boolean =
+            file === files_list[files_list.length - 1]
           const res: boolean = await this.deleteOneFileInPackage(
             project_name,
             package_name,
