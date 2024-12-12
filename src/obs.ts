@@ -1,6 +1,7 @@
 import * as httpm from '@actions/http-client'
 import * as jsdom from 'jsdom'
 import * as fs from 'fs'
+import * as path from 'path'
 
 /**
  * A class to interact with the OBS WebSocket API
@@ -113,11 +114,11 @@ class OBSClient {
     close_commit = true
   ): Promise<boolean> {
     try {
-      const rev = close_commit ? 'commit' : 'upload'
+      const rev = close_commit ? 'cmd=commit' : 'rev=upload'
       const commit_string = `Delete ${file_name}`
       const http: httpm.HttpClient = this.getHttpClient(this._authCode)
       const res: httpm.HttpClientResponse = await http.del(
-        `https://api.opensuse.org/source/${project_name}/${package_name}/${file_name}?rev=${rev}&meta=0&keeplink=1&comment=${commit_string}`
+        `https://api.opensuse.org/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`
       )
       const body: string = await res.readBody()
 
@@ -128,6 +129,41 @@ class OBSClient {
       } else {
         throw new Error(body)
       }
+    } catch (error) {
+      console.log(error)
+      return false
+    }
+  }
+
+  protected async uploadOneFileToPackage(
+    project_name: string,
+    package_name: string,
+    file_paths: string[],
+    close_commit = true
+  ): Promise<boolean> {
+    try {
+      const rev = close_commit ? 'cmd=commit' : 'rev=upload'
+      const commit_string = `Upload Sources`
+      const http: httpm.HttpClient = this.getHttpClient(this._authCode)
+
+      for (const file_src of file_paths) {
+        const data = fs.readFileSync(file_src, 'binary')
+        const file_name = path.basename(file_src)
+        const res = await http.request(
+          'PUT',
+          `https://api.opensuse.org/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`,
+          data
+        )
+
+        const body: string = await res.readBody()
+
+        // Nothing to do with the response body
+        // Only need to check the status code
+        if (res.message.statusCode !== 200) {
+          throw new Error(body)
+        }
+      }
+      return true
     } catch (error) {
       console.log(error)
       return false
