@@ -1,5 +1,6 @@
 import * as httpm from '@actions/http-client'
 import * as jsdom from 'jsdom'
+import * as fs from 'fs'
 
 /**
  * A class to interact with the OBS WebSocket API
@@ -132,6 +133,54 @@ class OBSClient {
       return false
     }
   }
+
+  /**
+   * 从指定目录中获取debian源文件列表
+   * @param dir 希望查找源文件的目录
+   * @returns {string[] | null} 源文件列表
+   */
+  protected getLocalFileListInDir(dir: string): string[] | null {
+    try {
+      // Get realpath of the dir
+      let real_path: string = dir
+      fs.realpath(dir, (error, resolvedPath) => {
+        if (error) {
+          throw error
+        } else {
+          real_path = resolvedPath
+        }
+      })
+
+      const files_list: string[] = []
+      // Get all files in the dir
+      fs.readdir(real_path, (err, files) => {
+        if (err) {
+          throw err
+        }
+
+        // files object contains all files names
+        // log them on console
+        for (const file of files) {
+          if (
+            file.includes('dsc') ||
+            file.includes('changes') ||
+            file.includes('tar')
+          ) {
+            files_list.push(`${real_path}/${file}`)
+          }
+        }
+      })
+
+      return files_list
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  }
+
+  /*********************
+   * 以下为外部调用接口*
+   *********************/
 
   /**
    * 删除指定项目中指定包中的旧文件。
