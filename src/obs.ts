@@ -138,31 +138,29 @@ class OBSClient {
   protected async uploadOneFileToPackage(
     project_name: string,
     package_name: string,
-    file_paths: string[],
+    file_src: string,
     close_commit = true
   ): Promise<boolean> {
     try {
       const rev = close_commit ? 'cmd=commit' : 'rev=upload'
       const commit_string = `Upload Sources`
       const http: httpm.HttpClient = this.getHttpClient(this._authCode)
+      const data = fs.readFileSync(file_src, 'binary')
+      const file_name = path.basename(file_src)
+      const res = await http.request(
+        'PUT',
+        `https://api.opensuse.org/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`,
+        data
+      )
 
-      for (const file_src of file_paths) {
-        const data = fs.readFileSync(file_src, 'binary')
-        const file_name = path.basename(file_src)
-        const res = await http.request(
-          'PUT',
-          `https://api.opensuse.org/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`,
-          data
-        )
+      const body: string = await res.readBody()
 
-        const body: string = await res.readBody()
-
-        // Nothing to do with the response body
-        // Only need to check the status code
-        if (res.message.statusCode !== 200) {
-          throw new Error(body)
-        }
+      // Nothing to do with the response body
+      // Only need to check the status code
+      if (res.message.statusCode !== 200) {
+        throw new Error(body)
       }
+
       return true
     } catch (error) {
       console.log(error)
@@ -265,6 +263,51 @@ class OBSClient {
               `Error: Failed to delete file ${file} in package ${package_name}`
             )
           }
+        }
+      }
+
+      return true
+    } catch (error) {
+      console.log(error)
+      return false
+    }
+  }
+
+  /**
+   * 上传指定目录中的源文件到指定项目中指定包中。
+   * @param project_name 项目名称
+   * @param package_name 包名称
+   * @returns {Promise<boolean>} 上传操作是否成功
+   */
+  async uploadSourceFilesInDirToPackage(
+    project_name: string,
+    package_name: string,
+    local_dir: string
+  ): Promise<boolean> {
+    try {
+      // Get all files in the package
+      const files_list: string[] | null = this.getLocalFileListInDir(local_dir)
+
+      if (files_list === null) {
+        throw new Error(
+          `Error: Failed to get files list in package ${package_name}`
+        )
+      }
+
+      // Delete old files in the package
+      for (const file of files_list) {
+        const is_last_file: boolean = file === files_list[files_list.length - 1]
+        const res: boolean = await this.uploadOneFileToPackage(
+          project_name,
+          package_name,
+          file,
+          is_last_file
+        )
+
+        if (!res) {
+          throw new Error(
+            `Error: Failed to upload file ${file} in package ${package_name}`
+          )
         }
       }
 
