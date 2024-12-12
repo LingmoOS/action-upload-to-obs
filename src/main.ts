@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import { wait } from './wait'
+import { OBSClient } from './obs'
 
 /**
  * The main function for the action.
@@ -7,18 +7,46 @@ import { wait } from './wait'
  */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    const removeOldSources: boolean = core.getBooleanInput(
+      'remove-old-sources',
+      { required: true }
+    )
+    const obsUsername: string = core.getInput('obs-user-name', {
+      required: true
+    })
+    const obsPassword: string = core.getInput('obs-password', {
+      required: true
+    })
+    const obsProjectName: string = core.getInput('obs-project-name', {
+      required: true
+    })
+    const obsPackageName: string = core.getInput('obs-package-name', {
+      required: true
+    })
+    const obsInstanceUrl: string = core.getInput('obs-instance-url', {
+      required: true
+    })
+    const localPackageDir: string = core.getInput('local-package-dir', {
+      required: true
+    })
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    // Init OBS Client
+    const obsClient = new OBSClient(obsUsername, obsPassword, obsInstanceUrl)
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    // Remove old sources if requested
+    if (removeOldSources) {
+      await obsClient.deleteOldSourceFilesInPackage(
+        obsProjectName,
+        obsPackageName
+      )
+    }
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    // Upload package
+    await obsClient.uploadSourceFilesInDirToPackage(
+      obsProjectName,
+      obsPackageName,
+      localPackageDir
+    )
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)

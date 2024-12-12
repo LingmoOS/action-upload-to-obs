@@ -7,13 +7,14 @@ import * as path from 'path'
  * A class to interact with the OBS WebSocket API
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class OBSClient {
+export class OBSClient {
   constructor(
     readonly id: string,
     readonly password: string,
     readonly server_url: string
   ) {
     this._authCode = this.getAuthCode(id, password)
+    this._serverUrl = server_url
   }
 
   /**
@@ -58,7 +59,7 @@ class OBSClient {
     try {
       const http: httpm.HttpClient = this.getHttpClient(this._authCode)
       const res: httpm.HttpClientResponse = await http.get(
-        `https://api.opensuse.org/source/${project_name}/${package_name}`
+        `${this._serverUrl}/source/${project_name}/${package_name}`
       )
       const body: string = await res.readBody()
 
@@ -118,7 +119,7 @@ class OBSClient {
       const commit_string = `Delete ${file_name}`
       const http: httpm.HttpClient = this.getHttpClient(this._authCode)
       const res: httpm.HttpClientResponse = await http.del(
-        `https://api.opensuse.org/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`
+        `${this._serverUrl}/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`
       )
       const body: string = await res.readBody()
 
@@ -149,7 +150,7 @@ class OBSClient {
       const file_name = path.basename(file_src)
       const res = await http.request(
         'PUT',
-        `https://api.opensuse.org/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`,
+        `${this._serverUrl}/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`,
         data
       )
 
@@ -319,4 +320,5 @@ class OBSClient {
   }
 
   private _authCode: string
+  private _serverUrl: string
 }

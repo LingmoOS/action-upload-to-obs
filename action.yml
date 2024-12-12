@@ -1,6 +1,6 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Upload to OBS'
+description: 'Upload to OBS'
+author: 'Elysia'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
@@ -9,10 +9,29 @@ branding:
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  remove-old-sources:
+    description: 'Remove old sources from OBS package'
     required: true
-    default: '1000'
+    default: true
+  obs-package-name:
+    description: 'OBS package name'
+    required: true
+  obs-project-name:
+    description: 'OBS project name'
+    required: true
+  obs-user-name:
+    description: 'OBS user name'
+    required: true
+  obs-password:
+    description: 'OBS password'
+    required: true
+  obs-instance-url:
+    description: 'OBS instance URL'
+    required: true
+    default: 'https://api.opensuse.org'
+  local-package-dir:
+    description: 'Local package directory'
+    required: true
 
 # Define your outputs here.
 outputs:
