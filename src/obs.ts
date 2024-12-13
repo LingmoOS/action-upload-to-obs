@@ -1,7 +1,7 @@
-import * as httpm from '@actions/http-client'
 import * as jsdom from 'jsdom'
 import * as fs from 'fs'
 import * as path from 'path'
+import axios from 'axios'
 
 /**
  * A class to interact with the OBS WebSocket API
@@ -32,16 +32,6 @@ export class OBSClient {
     return buf.toString('base64')
   }
 
-  protected getHttpClient(auth_code: string): httpm.HttpClient {
-    const http = new httpm.HttpClient('http-client-obs-actions', [], {
-      headers: {
-        Accept: 'application/xml',
-        Authorization: `Basic ${auth_code}`
-      }
-    })
-    return http
-  }
-
   /**
    * 获取指定项目中指定包中的文件列表。
    *
@@ -57,14 +47,25 @@ export class OBSClient {
     package_name: string
   ): Promise<string[] | null> {
     try {
-      const http: httpm.HttpClient = this.getHttpClient(this._authCode)
-      const res: httpm.HttpClientResponse = await http.get(
-        `${this._serverUrl}/source/${project_name}/${package_name}`
+      const service = axios.create({
+        headers: {
+          Accept: 'application/xml',
+          Authorization: `Basic ${this._authCode}`
+        }
+      })
+      const response = await service.get(
+        `${this._serverUrl}/source/${project_name}/${package_name}`,
+        {
+          headers: {
+            Accept: 'application/xml',
+            Authorization: `Basic ${this._authCode}`
+          }
+        }
       )
-      const body: string = await res.readBody()
+      const body: string = response.data as string
 
       // Only need to check the status code
-      if (res.message.statusCode !== 200) {
+      if (response.status !== 200) {
         throw new Error(body)
       }
 
@@ -117,15 +118,21 @@ export class OBSClient {
     try {
       const rev = close_commit ? 'cmd=commit' : 'rev=upload'
       const commit_string = `Delete ${file_name}`
-      const http: httpm.HttpClient = this.getHttpClient(this._authCode)
-      const res: httpm.HttpClientResponse = await http.del(
+      const service = axios.create({
+        headers: {
+          Accept: 'application/xml',
+          Authorization: `Basic ${this._authCode}`
+        }
+      })
+      const response = await service.delete(
         `${this._serverUrl}/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=0&comment=${commit_string}`
       )
-      const body: string = await res.readBody()
+
+      const body: string = response.data as string
 
       // Nothing to do with the response body
       // Only need to check the status code
-      if (res.message.statusCode === 200) {
+      if (response.status === 200) {
         return true
       } else {
         throw new Error(body)
@@ -143,22 +150,34 @@ export class OBSClient {
     close_commit = true
   ): Promise<boolean> {
     try {
+      // Import mime
+      const mime = (await import('mime')).default
+
       const rev = close_commit ? 'cmd=commit' : 'rev=upload'
       const commit_string = `Upload Sources`
-      const http: httpm.HttpClient = this.getHttpClient(this._authCode)
-      const data = fs.readFileSync(file_src, 'binary')
+      const data = fs.readFileSync(file_src)
       const file_name = path.basename(file_src)
-      const res = await http.request(
-        'PUT',
+      let file_mimetype = mime.getType(file_name)
+      if (file_mimetype === null) {
+        file_mimetype = 'text/plain'
+      }
+      const service = axios.create({
+        headers: {
+          Accept: 'application/xml',
+          Authorization: `Basic ${this._authCode}`,
+          'Content-Type': file_mimetype
+        }
+      })
+      const result = await service.put(
         `${this._serverUrl}/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=0&comment=${commit_string}`,
         data
       )
 
-      const body: string = await res.readBody()
+      const body: string = result.data as string
 
       // Nothing to do with the response body
       // Only need to check the status code
-      if (res.message.statusCode !== 200) {
+      if (result.status !== 200) {
         throw new Error(body)
       }
 
@@ -220,6 +239,7 @@ export class OBSClient {
     package_name: string
   ): Promise<boolean> {
     try {
+      console.log('Deleting old files.')
       // Get all files in the package
       const files_list: string[] | null = await this.getFilesListInPackage(
         project_name,
@@ -275,6 +295,7 @@ export class OBSClient {
     local_dir: string
   ): Promise<boolean> {
     try {
+      console.log('Uploading new files.')
       // Get all files in the package
       const files_list: string[] | null = this.getLocalFileListInDir(local_dir)
 
@@ -284,7 +305,7 @@ export class OBSClient {
         )
       }
 
-      // Delete old files in the package
+      // Upload files in the package
       for (const file of files_list) {
         const is_last_file: boolean = file === files_list[files_list.length - 1]
         const res: boolean = await this.uploadOneFileToPackage(

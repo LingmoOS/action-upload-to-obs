@@ -33,7 +33,7 @@
     "local-action": "npx local-action . src/main.ts .env",
     "package": "npx ncc build src/index.ts -o dist --source-map --license licenses.txt",
     "package:watch": "npm run package -- --watch",
-    "test": "npx jest",
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest",
     "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
   },
   "license": "MIT",
@@ -69,7 +69,9 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/http-client": "^2.2.3",
-    "jsdom": "^25.0.1"
+    "axios": "^1.7.9",
+    "jsdom": "^25.0.1",
+    "mime": "^4.0.4"
   },
   "devDependencies": {
     "@github/local-action": "^2.2.1",
