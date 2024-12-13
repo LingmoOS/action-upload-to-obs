@@ -177,34 +177,23 @@ export class OBSClient {
   protected getLocalFileListInDir(dir: string): string[] | null {
     try {
       // Get realpath of the dir
-      let real_path: string = dir
-      fs.realpath(dir, (error, resolvedPath) => {
-        if (error) {
-          throw error
-        } else {
-          real_path = resolvedPath
-        }
-      })
+      const real_path: string = fs.realpathSync(dir)
 
-      const files_list: string[] = []
       // Get all files in the dir
-      fs.readdir(real_path, (err, files) => {
-        if (err) {
-          throw err
-        }
+      const files_list: string[] = []
+      const all_files = fs.readdirSync(real_path)
 
-        // files object contains all files names
-        // log them on console
-        for (const file of files) {
-          if (
-            file.includes('dsc') ||
-            file.includes('changes') ||
-            file.includes('tar')
-          ) {
-            files_list.push(`${real_path}/${file}`)
-          }
+      // files object contains all files names
+      // log them on console
+      for (const file of all_files) {
+        if (
+          file.includes('dsc') ||
+          file.includes('changes') ||
+          file.includes('tar')
+        ) {
+          files_list.push(`${real_path}/${file}`)
         }
-      })
+      }
 
       return files_list
     } catch (error) {

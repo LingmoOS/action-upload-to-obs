@@ -12,7 +12,7 @@ inputs:
   remove-old-sources:
     description: 'Remove old sources from OBS package'
     required: true
-    default: true
+    default: 'true'
   obs-package-name:
     description: 'OBS package name'
     required: true
