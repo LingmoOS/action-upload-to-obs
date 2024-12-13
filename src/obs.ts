@@ -235,9 +235,9 @@ export class OBSClient {
       // Delete old files in the package
       for (const file of files_list) {
         if (
-          file.includes('.dsc') ||
-          file.includes('.changes') ||
-          file.includes('.tar')
+          file.includes('dsc') ||
+          file.includes('changes') ||
+          file.includes('tar')
         ) {
           const is_last_file: boolean =
             file === files_list[files_list.length - 1]

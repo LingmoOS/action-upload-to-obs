@@ -70,40 +70,16 @@
 3. 将以下内容复制到新创建的YAML文件中：
 
 ```yaml
-name: 'Upload to OBS'
-description: 'Upload to OBS'
-author: 'Elysia'
-
-# Add your action's branding here. This will appear on the GitHub Marketplace.
-branding:
-  icon: 'heart'
-  color: 'red'
-
-# Define your inputs here.
-inputs:
-  remove-old-sources:
-    description: 'Remove old sources from OBS package'
-    required: true
-    default: true
-  obs-package-name:
-    description: 'OBS package name'
-    required: true
-  obs-project-name:
-    description: 'OBS project name'
-    required: true
-  obs-user-name:
-    description: 'OBS user name'
-    required: true
-  obs-password:
-    description: 'OBS password'
-    required: true
-  obs-instance-url:
-    description: 'OBS instance URL'
-    required: true
-    default: 'https://api.opensuse.org'
-  local-package-dir:
-    description: 'Local package directory'
-    required: true
+- name: Upload to OBS
+  uses: LingmoOS/action-upload-to-obs@0.0.3
+  with:
+    remove-old-sources: true
+    obs-package-name: 'xxx'
+    obs-project-name: 'home:xxx:xxx'
+    obs-user-name: ${{ secrets.OBS_USERNAME }}
+    obs-password: ${{ secrets.OBS_PASSWORD }}
+    obs-instance-url: 'https://api.opensuse.org'
+    local-package-dir: './debian-deb-output'
 ```
 
 4. 根据您的需求修改输入参数的值。
