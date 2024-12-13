@@ -119,7 +119,7 @@ export class OBSClient {
       const commit_string = `Delete ${file_name}`
       const http: httpm.HttpClient = this.getHttpClient(this._authCode)
       const res: httpm.HttpClientResponse = await http.del(
-        `${this._serverUrl}/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`
+        `${this._serverUrl}/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=0&comment=${commit_string}`
       )
       const body: string = await res.readBody()
 
@@ -150,7 +150,7 @@ export class OBSClient {
       const file_name = path.basename(file_src)
       const res = await http.request(
         'PUT',
-        `${this._serverUrl}/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=1&comment=${commit_string}`,
+        `${this._serverUrl}/source/${project_name}/${package_name}/${file_name}?${rev}&meta=0&keeplink=0&comment=${commit_string}`,
         data
       )
 
