@@ -71,7 +71,7 @@
     "@actions/http-client": "^2.2.3",
     "axios": "^1.7.9",
     "jsdom": "^25.0.1",
-    "mime": "^4.0.4"
+    "mime": "^4.0.6"
   },
   "devDependencies": {
     "@github/local-action": "^2.2.1",
