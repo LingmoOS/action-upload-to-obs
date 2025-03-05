@@ -71,7 +71,7 @@
 
 ```yaml
 - name: Upload to OBS
-  uses: LingmoOS/action-upload-to-obs@0.0.3
+  uses: LingmoOS/action-upload-to-obs@0.0.4
   with:
     remove-old-sources: true
     obs-package-name: 'xxx'
