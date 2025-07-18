@@ -74,7 +74,7 @@
     "mime": "^4.0.7"
   },
   "devDependencies": {
-    "@github/local-action": "^4.0.0",
+    "@github/local-action": "^5.1.0",
     "@jest/globals": "^30.0.4",
     "@types/jest": "^29.5.14",
     "@types/jsdom": "^21.1.7",
