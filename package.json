@@ -70,7 +70,7 @@
     "@actions/core": "^2.0.1",
     "@actions/http-client": "^3.0.0",
     "axios": "^1.13.2",
-    "jsdom": "^27.3.0",
+    "jsdom": "^27.4.0",
     "mime": "^4.1.0"
   },
   "devDependencies": {
