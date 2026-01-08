@@ -67,7 +67,7 @@
     ]
   },
   "dependencies": {
-    "@actions/core": "^2.0.1",
+    "@actions/core": "^2.0.2",
     "@actions/http-client": "^3.0.0",
     "axios": "^1.13.2",
     "jsdom": "^27.4.0",
